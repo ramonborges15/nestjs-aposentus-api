@@ -1,0 +1,84 @@
+Project aposentus_api {
+  database_type: "PostgreSQL"
+  Note: "Schema derivado do docs/kick-off.md e contratos da API."
+}
+
+Enum oracao_tipo {
+  PEDIDO
+  INTERCESSAO
+  AGRADECIMENTO
+  CONFISSAO
+}
+
+Enum oracao_frequencia {
+  DIARIA
+  SEMANAL
+  MENSAL
+}
+
+Table users {
+  id uuid [pk]
+  Note: "Entidade minima para suportar FK."
+}
+
+Table oracoes {
+  id int [pk, increment]
+  criado_em timestamp [not null]
+  atualizado_em timestamp [not null]
+  titulo varchar [not null]
+  conteudo text [not null]
+  tema varchar [not null]
+  tipo oracao_tipo [not null]
+  dia_semana int [not null]
+  dia_mes int [not null]
+  frequencia oracao_frequencia [not null]
+  quantidade_maxima int [not null, default: 0]
+  total_oracoes int [not null, default: 0]
+  ativa boolean [not null]
+  user_id uuid [not null, ref: > users.id]
+}
+
+Table base_biblica {
+  id int [pk, increment]
+  criado_em timestamp [not null]
+  atualizado_em timestamp [not null]
+  referencia varchar [null]
+  tema text[] [not null]
+  texto text [not null]
+}
+
+Table sessoes {
+  id int [pk, increment]
+  criado_em timestamp [not null]
+  atualizado_em timestamp [not null]
+  data_dia date [not null]
+  finalizado boolean [not null]
+  finalizado_em timestamp [null]
+  user_id uuid [not null, ref: > users.id]
+}
+
+Table sessao_oracoes {
+  sessao_id int [not null, ref: > sessoes.id]
+  oracao_id int [not null, ref: > oracoes.id]
+
+  indexes {
+    (sessao_id, oracao_id) [pk]
+  }
+}
+
+Table telegram_integracoes {
+  id int [pk, increment]
+  user_id uuid [not null, unique, ref: > users.id]
+  telegram_user_id varchar [not null]
+  telegram_chat_id varchar [not null]
+  telegram_username varchar [not null]
+  telegram_first_name varchar [not null]
+  linked boolean [not null, default: true]
+  linked_at timestamp [not null]
+}
+
+Table telegram_codigos_link {
+  code varchar [pk]
+  user_id uuid [not null, ref: > users.id]
+  expires_at timestamp [not null]
+}

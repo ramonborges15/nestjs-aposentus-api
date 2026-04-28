@@ -1,0 +1,582 @@
+openapi: 3.0.3
+info:
+  title: Aposentus - API
+  version: 1.0.0
+  description: >
+    Gerenciamento de vida de oracao. Esta API fornece recursos para cadastro e
+    organizacao de oracoes, controle de sessoes, integracao com Telegram,
+    geracao de oracoes por IA e analise da vida de oracao.
+servers:
+  - url: /
+tags:
+  - name: Oracoes
+  - name: Base Biblica
+  - name: Sessoes
+  - name: Integracoes Telegram
+security:
+  - bearerAuth: []
+
+paths:
+  /v1/oracoes/{id}:
+    get:
+      tags: [Oracoes]
+      summary: Buscar uma oracao por ID
+      parameters:
+        - $ref: '#/components/parameters/OracaoIdPath'
+      responses:
+        '200':
+          description: Oracao encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OracaoSingleResponse'
+    put:
+      tags: [Oracoes]
+      summary: Editar uma oracao existente
+      parameters:
+        - $ref: '#/components/parameters/OracaoIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OracaoUpsertRequest'
+      responses:
+        '200':
+          description: Oracao atualizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OracaoSingleResponse'
+    delete:
+      tags: [Oracoes]
+      summary: Deletar uma oracao existente
+      parameters:
+        - $ref: '#/components/parameters/OracaoIdPath'
+      responses:
+        '200':
+          description: Oracao deletada com sucesso
+
+  /v1/oracoes:
+    get:
+      tags: [Oracoes]
+      summary: Visualizar minhas oracoes por periodo e ordenacao
+      parameters:
+        - name: periodo
+          in: query
+          schema:
+            type: string
+            enum: [dia]
+        - name: orderBy
+          in: query
+          schema:
+            type: string
+            enum: [ASC, DESC]
+      responses:
+        '200':
+          description: Lista paginada de oracoes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OracaoListResponse'
+    post:
+      tags: [Oracoes]
+      summary: Criar uma nova oracao
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OracaoUpsertRequest'
+      responses:
+        '200':
+          description: Oracao criada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OracaoSingleResponse'
+
+  /v1/oracoes/gerar-por-ia:
+    post:
+      tags: [Oracoes]
+      summary: Gerar uma oracao por IA a partir de textos biblicos
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OracaoGerarPorIARequest'
+      responses:
+        '200':
+          description: Processo de geracao iniciado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MensagemProcessoIAResponse'
+
+  /v1/oracoes/{id}/gerar-por-ia:
+    post:
+      tags: [Oracoes]
+      summary: Gerar nova versao de oracao por IA
+      parameters:
+        - $ref: '#/components/parameters/OracaoIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OracaoGerarPorIARequest'
+      responses:
+        '200':
+          description: Processo de geracao iniciado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MensagemProcessoIAResponse'
+
+  /v1/oracoes/{id}/registro-evento:
+    put:
+      tags: [Oracoes]
+      summary: Registrar que uma oracao foi feita
+      parameters:
+        - $ref: '#/components/parameters/OracaoIdPath'
+      responses:
+        '200':
+          description: Evento registrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistroEventoResponse'
+
+  /v1/base-biblica/{id}:
+    get:
+      tags: [Base Biblica]
+      summary: Buscar texto biblico de apoio por ID
+      parameters:
+        - $ref: '#/components/parameters/BaseBiblicaIdPath'
+      responses:
+        '200':
+          description: Texto biblico encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseBiblicaSingleResponse'
+    put:
+      tags: [Base Biblica]
+      summary: Editar texto biblico de apoio
+      parameters:
+        - $ref: '#/components/parameters/BaseBiblicaIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BaseBiblicaUpsertRequest'
+      responses:
+        '200':
+          description: Texto biblico atualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseBiblicaSingleResponse'
+    delete:
+      tags: [Base Biblica]
+      summary: Deletar texto biblico de apoio
+      parameters:
+        - $ref: '#/components/parameters/BaseBiblicaIdPath'
+      responses:
+        '200':
+          description: Texto biblico deletado com sucesso
+
+  /v1/base-biblica:
+    get:
+      tags: [Base Biblica]
+      summary: Listar textos biblicos por filtros
+      parameters:
+        - name: tema
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: size
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Lista paginada de textos biblicos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseBiblicaListResponse'
+    post:
+      tags: [Base Biblica]
+      summary: Cadastrar texto biblico de apoio
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BaseBiblicaUpsertRequest'
+      responses:
+        '200':
+          description: Texto biblico criado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseBiblicaSingleResponse'
+
+  /v1/sessoes:
+    post:
+      tags: [Sessoes]
+      summary: Inicializar nova sessao de oracao
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SessaoCreateRequest'
+      responses:
+        '200':
+          description: Sessao iniciada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessaoListResponse'
+
+  /v1/sessoes/{id}:
+    put:
+      tags: [Sessoes]
+      summary: Finalizar sessao de oracao existente
+      parameters:
+        - $ref: '#/components/parameters/SessaoIdPath'
+        - name: evento
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [finalizar]
+      responses:
+        '200':
+          description: Sessao finalizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessaoSingleResponse'
+
+  /v1/me/integracoes/telegram/codigo-link:
+    post:
+      tags: [Integracoes Telegram]
+      summary: Gerar codigo unico e temporario de vinculacao
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Codigo gerado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TelegramCodigoLinkResponse'
+
+  /v1/integracoes/telegram/link:
+    post:
+      tags: [Integracoes Telegram]
+      summary: Consumir codigo e vincular conta Telegram
+      description: Endpoint sem JWT; autenticacao por codigo temporario no body.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TelegramLinkRequest'
+      responses:
+        '200':
+          description: Conta vinculada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TelegramLinkResponse'
+
+  /v1/me/integracoes/telegram:
+    get:
+      tags: [Integracoes Telegram]
+      summary: Consultar status da integracao atual
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Status da integracao
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TelegramStatusResponse'
+
+  /v1/me/integracoes/telegram/link:
+    delete:
+      tags: [Integracoes Telegram]
+      summary: Desvincular ou revogar acesso do Telegram
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Acesso revogado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TelegramRevokeResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    OracaoIdPath:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    BaseBiblicaIdPath:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    SessaoIdPath:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+
+  schemas:
+    Oracao:
+      type: object
+      properties:
+        id: { type: integer }
+        criado_em: { type: string, format: date-time }
+        atualizado_em: { type: string, format: date-time }
+        titulo: { type: string }
+        conteudo: { type: string }
+        tema: { type: string }
+        tipo: { type: string, enum: [PEDIDO, INTERCESSAO, AGRADECIMENTO, CONFISSAO] }
+        dia_semana: { type: integer }
+        dia_mes: { type: integer }
+        frequencia: { type: string, enum: [DIARIA, SEMANAL, MENSAL] }
+        quantidade_maxima: { type: integer }
+        total_oracoes: { type: integer }
+        ativa: { type: boolean }
+        user_id: { type: string, format: uuid }
+
+    OracaoUpsertRequest:
+      type: object
+      properties:
+        titulo: { type: string }
+        conteudo: { type: string }
+        tema: { type: string }
+        tipo: { type: string, enum: [PEDIDO, INTERCESSAO, AGRADECIMENTO, CONFISSAO] }
+        dia_semana: { type: integer }
+        dia_mes: { type: integer }
+        frequencia: { type: string, enum: [DIARIA, SEMANAL, MENSAL] }
+        quantidade_maxima: { type: integer }
+      required: [titulo, conteudo, tema, tipo, dia_semana, dia_mes, frequencia]
+
+    TextoBiblicoEntradaIA:
+      type: object
+      properties:
+        referencia: { type: string, nullable: true }
+        texto: { type: string }
+      required: [texto]
+
+    OracaoGerarPorIARequest:
+      type: object
+      properties:
+        textos_biblicos:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/TextoBiblicoEntradaIA'
+        dia_semana: { type: integer }
+        dia_mes: { type: integer }
+        frequencia: { type: string, enum: [DIARIA, SEMANAL, MENSAL] }
+        quantidade_maxima: { type: integer }
+      required: [textos_biblicos, dia_semana, dia_mes, frequencia]
+
+    OracaoSingleResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Oracao'
+      required: [data]
+
+    OracaoListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Oracao'
+        page: { type: integer }
+        size: { type: integer }
+        totalItems: { type: integer }
+        totalPages: { type: integer }
+      required: [data, page, size, totalItems, totalPages]
+
+    MensagemProcessoIAResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            mensagem: { type: string }
+          required: [mensagem]
+      required: [data]
+
+    RegistroEventoResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            registrado_em: { type: string, format: date-time }
+          required: [registrado_em]
+      required: [data]
+
+    BaseBiblica:
+      type: object
+      properties:
+        id: { type: integer }
+        criado_em: { type: string, format: date-time }
+        atualizado_em: { type: string, format: date-time }
+        referencia: { type: string, nullable: true }
+        tema:
+          type: array
+          items: { type: string }
+        texto: { type: string }
+
+    BaseBiblicaUpsertRequest:
+      type: object
+      properties:
+        referencia: { type: string, nullable: true }
+        tema:
+          type: array
+          items: { type: string }
+        texto: { type: string }
+      required: [tema, texto]
+
+    BaseBiblicaSingleResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/BaseBiblica'
+      required: [data]
+
+    BaseBiblicaListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BaseBiblica'
+        page: { type: integer }
+        size: { type: integer }
+        totalItems: { type: integer }
+        totalPages: { type: integer }
+      required: [data, page, size, totalItems, totalPages]
+
+    Sessao:
+      type: object
+      properties:
+        id: { type: integer }
+        criado_em: { type: string, format: date-time }
+        atualizado_em: { type: string, format: date-time }
+        finalizado_em: { type: string, format: date-time, nullable: true }
+        data_dia: { type: string, format: date }
+        finalizado: { type: boolean }
+
+    SessaoCreateRequest:
+      type: object
+      properties:
+        oracao_ids:
+          type: array
+          items: { type: integer }
+      required: [oracao_ids]
+
+    SessaoSingleResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Sessao'
+      required: [data]
+
+    SessaoListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sessao'
+      required: [data]
+
+    TelegramCodigoLinkResponse:
+      type: object
+      properties:
+        code: { type: string }
+        expiresAt: { type: string, format: date-time }
+        deepLinkUrl: { type: string, format: uri }
+      required: [code, expiresAt, deepLinkUrl]
+
+    TelegramLinkRequest:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            code: { type: string }
+            telegramUserId: { type: string }
+            telegramChatId: { type: string }
+            telegramUsername: { type: string }
+            telegramFirstName: { type: string }
+          required: [code, telegramUserId, telegramChatId, telegramUsername, telegramFirstName]
+      required: [data]
+
+    TelegramLinkResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            linked: { type: boolean }
+            message: { type: string }
+          required: [linked, message]
+      required: [data]
+
+    TelegramStatusResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            linked: { type: boolean }
+            telegramUserId: { type: string }
+            telegramUsername: { type: string }
+            linkedAt: { type: string, format: date-time }
+          required: [linked, telegramUserId, telegramUsername, linkedAt]
+      required: [data]
+
+    TelegramRevokeResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            revoked: { type: boolean }
+          required: [revoked]
+      required: [data]
