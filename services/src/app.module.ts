@@ -13,6 +13,7 @@ import { LoggerService } from './modules/logger/logger.service';
 import { UserModule } from './modules/user/user.module';
 import { OracoesModule } from './modules/oracoes/oracoes.module';
 import { BaseBiblicaModule } from './modules/base-biblica/base-biblica.module';
+import { SessoesModule } from './modules/sessoes/sessoes.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.adapter';
@@ -78,7 +79,8 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.ad
     AuthModule,
     UserModule,
     OracoesModule,
-    BaseBiblicaModule
+    BaseBiblicaModule,
+    SessoesModule
   ],
   controllers: [],
   providers: [
