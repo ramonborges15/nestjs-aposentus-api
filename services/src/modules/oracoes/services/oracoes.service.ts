@@ -3,10 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { LoggerService } from 'src/modules/logger/logger.service';
 import { Repository } from 'typeorm';
 import { OracaoGerarPorIARequestDto } from '../dtos/oracao-gerar-por-ia-request.dto';
-import { OracaoListaQueryDto } from '../dtos/oracao-lista-query.dto';
+import { OracaoListaQueryDto, OrdemConsulta, PeriodoConsulta } from '../dtos/oracao-lista-query.dto';
 import { OracaoUpsertRequestDto } from '../dtos/oracao-upsert-request.dto';
-import { Oracao } from '../entities/oracao.entity';
-import { OracaoDto, OracaoViewModel } from '../view-models/oracao.view-model';
+import { Oracao, OracaoFrequencia } from '../entities/oracao.entity';
+import { OracaoDto, OracaoListaResponseDto, OracaoViewModel } from '../view-models/oracao.view-model';
 
 @Injectable()
 export class OracoesService {
@@ -56,9 +56,66 @@ export class OracoesService {
         this.loggerService.log(`[Excluir]: Oração de id '${id}' excluída com sucesso.`);
     }
 
-    // TODO: implementar regra de negócio de listagem
-    async listar(query: OracaoListaQueryDto, usuarioId: string): Promise<{ data: OracaoDto[]; page: number; size: number; totalItems: number; totalPages: number }> {
-        throw new NotImplementedException('Listagem não implementada');
+
+    async listar(query: OracaoListaQueryDto, usuarioId: string): Promise<OracaoListaResponseDto> {
+        if (query.periodo && query.periodo !== PeriodoConsulta.DIA) {
+            this.loggerService.warn(`[Listar]: Período de consulta '${query.periodo}' não implementado para o usuário '${usuarioId}'`);
+            throw new NotImplementedException('Período de consulta ainda não implementado.');
+        }
+
+        const page = query.page ?? 1;
+        const size = query.size ?? 10;
+        const hoje = new Date();
+        const dataAtual = hoje.toISOString().split('T')[0];
+        const diaSemanaAtual = hoje.getDay();
+        const diaMesAtual = hoje.getDate();
+        const orderBy = query.orderBy ?? OrdemConsulta.ASC;
+
+        const queryBuilder = this.oracaoRepository.createQueryBuilder('oracao')
+            .where('oracao.user_id = :usuarioId', { usuarioId })
+            .andWhere('oracao.ativa = true')
+            .andWhere(
+                `(
+                    oracao.frequencia = :frequenciaDiaria
+                    OR (oracao.frequencia = :frequenciaSemanal AND oracao.dia_semana = :diaSemanaAtual)
+                    OR (oracao.frequencia = :frequenciaMensal AND oracao.dia_mes = :diaMesAtual)
+                )`,
+                {
+                    frequenciaDiaria: OracaoFrequencia.DIARIA,
+                    frequenciaSemanal: OracaoFrequencia.SEMANAL,
+                    frequenciaMensal: OracaoFrequencia.MENSAL,
+                    diaSemanaAtual,
+                    diaMesAtual,
+                },
+            )
+            .andWhere(
+                `NOT EXISTS (
+                    SELECT 1
+                    FROM sessao_oracoes so
+                    INNER JOIN sessoes s ON s.id = so.sessao_id
+                    WHERE so.oracao_id = oracao.id
+                    AND s.user_id = :usuarioId
+                    AND s.data_dia = :dataAtual
+                    AND s.finalizado = true
+                )`,
+                { dataAtual },
+            )
+            .orderBy('oracao.criado_em', orderBy)
+            .offset((page - 1) * size)
+            .limit(size)
+            .addSelect('COUNT(*) OVER()', 'total_items');
+
+        const { entities, raw } = await queryBuilder.getRawAndEntities();
+        const totalItems = raw.length > 0 ? Number(raw[0].total_items) : 0;
+        const totalPages = totalItems > 0 ? Math.ceil(totalItems / size) : 0;
+
+        return {
+            data: entities.map((oracao) => OracaoViewModel.toDto(oracao)),
+            page,
+            size,
+            totalItems,
+            totalPages,
+        };
     }
 
     async criar(dto: OracaoUpsertRequestDto, usuarioId: string): Promise<{ data: OracaoDto }> {
