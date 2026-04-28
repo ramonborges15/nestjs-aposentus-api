@@ -36,17 +36,7 @@ export class OracoesService {
             throw new NotFoundException('Oração não encontrada.');
         }
 
-        oracao.titulo = dto.titulo;
-        oracao.conteudo = dto.conteudo;
-        oracao.tema = dto.tema;
-        oracao.tipo = dto.tipo;
-        oracao.diaSemana = dto.dia_semana;
-        oracao.diaMes = dto.dia_mes;
-        oracao.frequencia = dto.frequencia;
-
-        if (dto.quantidade_maxima !== undefined) {
-            oracao.quantidadeMaxima = dto.quantidade_maxima;
-        }
+        this.aplicarDtoNaOracao(oracao, dto);
 
         const oracaoAtualizada = await this.oracaoRepository.save(oracao);
         this.loggerService.log(`[Editar]: Oração de id '${id}' atualizada com sucesso.`);
@@ -73,23 +63,31 @@ export class OracoesService {
 
     async criar(dto: OracaoUpsertRequestDto, usuarioId: string): Promise<{ data: OracaoDto }> {
         const novaOracao = this.oracaoRepository.create({
-            titulo: dto.titulo,
-            conteudo: dto.conteudo,
-            tema: dto.tema,
-            tipo: dto.tipo,
-            diaSemana: dto.dia_semana,
-            diaMes: dto.dia_mes,
-            frequencia: dto.frequencia,
-            quantidadeMaxima: dto.quantidade_maxima ?? 0,
             totalOracoes: 0,
             ativa: true,
             userId: usuarioId,
         });
 
+        this.aplicarDtoNaOracao(novaOracao, dto);
+
         const oracaoCriada = await this.oracaoRepository.save(novaOracao);
         this.loggerService.log(`[Criar]: Oração criada com sucesso para o usuário '${usuarioId}'.`);
 
         return { data: OracaoViewModel.toDto(oracaoCriada) };
+    }
+
+    private aplicarDtoNaOracao(oracao: Oracao, dto: OracaoUpsertRequestDto): void {
+        oracao.titulo = dto.titulo;
+        oracao.conteudo = dto.conteudo;
+        oracao.tema = dto.tema;
+        oracao.tipo = dto.tipo;
+        oracao.diaSemana = dto.dia_semana;
+        oracao.diaMes = dto.dia_mes;
+        oracao.frequencia = dto.frequencia;
+
+        if (dto.quantidade_maxima !== undefined) {
+            oracao.quantidadeMaxima = dto.quantidade_maxima;
+        }
     }
 
     // TODO: implementar listener de geração por IA
