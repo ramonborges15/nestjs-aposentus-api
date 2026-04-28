@@ -39,17 +39,17 @@ export class OracoesController {
     }
 
     @Post()
-    @HttpCode(HttpStatus.CREATED)
+    @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'Criar uma nova oração' })
-    @ApiResponse({ status: HttpStatus.CREATED, description: 'Oração criada com sucesso' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Oração criada com sucesso' })
     async criar(@Body() dto: OracaoUpsertRequestDto, @Req() req: RequisicaoAutenticada) {
         return await this.oracoesService.criar(dto, req.user.sub);
     }
 
     @Post('gerar-por-ia')
-    @HttpCode(HttpStatus.ACCEPTED)
+    @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'Gerar oração por IA' })
-    @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'Processo de geração por IA iniciado' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Processo de geração por IA iniciado' })
     async gerarPorIa(@Body() dto: OracaoGerarPorIARequestDto, @Req() req: RequisicaoAutenticada) {
         return await this.oracoesService.gerarPorIa(dto, req.user.sub);
     }
@@ -86,9 +86,9 @@ export class OracoesController {
     }
 
     @Post(':id/gerar-por-ia')
-    @HttpCode(HttpStatus.ACCEPTED)
+    @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'Gerar nova versão de oração por IA' })
-    @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'Processo de geração por IA iniciado' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Processo de geração por IA iniciado' })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Oração não encontrada' })
     async gerarNovaVersaoPorIa(
         @Param('id', ParseIntPipe) id: number,

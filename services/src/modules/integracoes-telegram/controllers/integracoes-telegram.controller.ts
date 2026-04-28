@@ -26,9 +26,9 @@ export class MeIntegracoesTelegramController {
     constructor(private readonly integracoesTelegramService: IntegracoesTelegramService) { }
 
     @Post('codigo-link')
-    @HttpCode(HttpStatus.CREATED)
+    @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'Gerar código temporário para vinculação com Telegram' })
-    @ApiResponse({ status: HttpStatus.CREATED, description: 'Código de vinculação gerado com sucesso' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Código de vinculação gerado com sucesso' })
     @ApiResponse({ status: HttpStatus.NOT_IMPLEMENTED, description: 'Funcionalidade não implementada' })
     async gerarCodigoLink(@Req() req: RequisicaoAutenticada) {
         return await this.integracoesTelegramService.gerarCodigoLink(req.user.sub);

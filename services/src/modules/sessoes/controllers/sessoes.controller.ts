@@ -28,9 +28,9 @@ export class SessoesController {
     constructor(private readonly sessoesService: SessoesService) { }
 
     @Post()
-    @HttpCode(HttpStatus.CREATED)
+    @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'Iniciar uma nova sessão de oração' })
-    @ApiResponse({ status: HttpStatus.CREATED, description: 'Sessão criada com sucesso' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Sessão criada com sucesso' })
     async iniciarSessao(
         @Body() dto: SessaoCreateRequestDto,
         @Req() req: RequisicaoAutenticada,

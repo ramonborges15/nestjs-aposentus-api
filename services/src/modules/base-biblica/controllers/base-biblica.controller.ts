@@ -32,9 +32,9 @@ export class BaseBiblicaController {
     }
 
     @Post()
-    @HttpCode(HttpStatus.CREATED)
+    @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'Criar um novo registro bíblico' })
-    @ApiResponse({ status: HttpStatus.CREATED, description: 'Registro bíblico criado com sucesso' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Registro bíblico criado com sucesso' })
     async criar(@Body() dto: BaseBiblicaUpsertRequestDto) {
         return await this.baseBiblicaService.criar(dto);
     }
