@@ -12,12 +12,13 @@ import {
     Query,
     Req,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { OracaoGerarPorIARequestDto } from '../dtos/oracao-gerar-por-ia-request.dto';
 import { OracaoListaQueryDto } from '../dtos/oracao-lista-query.dto';
 import { OracaoUpsertRequestDto } from '../dtos/oracao-upsert-request.dto';
 import { OracoesService } from '../services/oracoes.service';
+import { OracaoListaResponseDto } from '../view-models/oracao.view-model';
 
 interface RequisicaoAutenticada extends Request {
     user: { sub: string; email: string; name: string };
@@ -33,7 +34,7 @@ export class OracoesController {
     @Get()
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'Listar orações do usuário' })
-    @ApiResponse({ status: HttpStatus.OK, description: 'Lista de orações retornada com sucesso' })
+    @ApiOkResponse({ type: OracaoListaResponseDto, description: 'Lista de orações retornada com sucesso' })
     async listar(@Query() query: OracaoListaQueryDto, @Req() req: RequisicaoAutenticada) {
         return await this.oracoesService.listar(query, req.user.sub);
     }
