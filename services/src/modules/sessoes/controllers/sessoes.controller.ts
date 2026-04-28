@@ -48,6 +48,7 @@ export class SessoesController {
         @Query() query: FinalizarSessaoQueryDto,
         @Req() req: RequisicaoAutenticada,
     ) {
-        return await this.sessoesService.finalizarSessao(id, req.user.sub);
+        // query.evento é validado pelo FinalizarSessaoQueryDto via class-validator (@IsEnum)
+        return await this.sessoesService.finalizarSessao(id, req.user.sub, query.evento);
     }
 }

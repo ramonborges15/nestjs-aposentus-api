@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Oracao } from 'src/modules/oracoes/entities/oracao.entity';
 import { LoggerService } from 'src/modules/logger/logger.service';
 import { In, Repository } from 'typeorm';
+import { EventoSessao, FinalizarSessaoQueryDto } from '../dtos/finalizar-sessao-query.dto';
 import { SessaoCreateRequestDto } from '../dtos/sessao-create-request.dto';
 import { Sessao } from '../entities/sessao.entity';
 import { SessaoDto, SessaoViewModel } from '../view-models/sessao.view-model';
@@ -49,7 +50,9 @@ export class SessoesService {
         return { data: [SessaoViewModel.toDto(sessaoCriada)] };
     }
 
-    async finalizarSessao(id: number, usuarioId: string): Promise<{ data: SessaoDto }> {
+    async finalizarSessao(id: number, usuarioId: string, evento: EventoSessao): Promise<{ data: SessaoDto }> {
+        this.loggerService.log(`[FinalizarSessao]: Executando evento '${evento}' para a sessão '${id}'.`);
+
         const sessao = await this.sessaoRepository.findOne({ where: { id, userId: usuarioId } });
 
         if (!sessao) {
