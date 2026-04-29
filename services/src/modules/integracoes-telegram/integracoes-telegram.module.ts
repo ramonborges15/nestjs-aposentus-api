@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { LoggerModule } from '../logger/logger.module';
+import { Oracao } from '../oracoes/entities/oracao.entity';
 import {
     IntegracoesTelegramPublicoController,
     MeIntegracoesTelegramController,
@@ -11,7 +12,7 @@ import { IntegracoesTelegramService } from './services/integracoes-telegram.serv
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([TelegramIntegracao, TelegramCodigoLink]),
+        TypeOrmModule.forFeature([TelegramIntegracao, TelegramCodigoLink, Oracao]),
         LoggerModule.register('IntegracoesTelegram'),
     ],
     controllers: [MeIntegracoesTelegramController, IntegracoesTelegramPublicoController],
