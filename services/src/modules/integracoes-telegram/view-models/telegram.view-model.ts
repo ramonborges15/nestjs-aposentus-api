@@ -16,7 +16,7 @@ export interface TelegramStatusResponse {
         linked: boolean;
         telegramUserId: string;
         telegramUsername: string;
-        linkedAt: Date;
+        linkedAt: Date | null;
     };
 }
 
@@ -28,7 +28,6 @@ export interface TelegramRevokeResponse {
 
 export class TelegramViewModel {
 
-    // TODO: implementar mapeamento de entidade para TelegramCodigoLinkResponse
     static toCodigoLinkDto(codigo: string, expiresAt: Date, deepLinkUrl: string): TelegramCodigoLinkResponse {
         return {
             code: codigo,
@@ -37,7 +36,6 @@ export class TelegramViewModel {
         };
     }
 
-    // TODO: implementar mapeamento de resultado de vinculação para TelegramLinkResponse
     static toLinkResponseDto(vinculado: boolean, mensagem: string): TelegramLinkResponse {
         return {
             data: {
@@ -47,8 +45,7 @@ export class TelegramViewModel {
         };
     }
 
-    // TODO: implementar mapeamento de entidade para TelegramStatusResponse
-    static toStatusDto(vinculado: boolean, telegramUserId: string, telegramUsername: string, vinculadoEm: Date): TelegramStatusResponse {
+    static toStatusDto(vinculado: boolean, telegramUserId: string, telegramUsername: string, vinculadoEm: Date | null): TelegramStatusResponse {
         return {
             data: {
                 linked: vinculado,
@@ -59,7 +56,6 @@ export class TelegramViewModel {
         };
     }
 
-    // TODO: implementar mapeamento de resultado de revogação para TelegramRevokeResponse
     static toRevokeDto(revogado: boolean): TelegramRevokeResponse {
         return {
             data: {

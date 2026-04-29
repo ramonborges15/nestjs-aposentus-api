@@ -19,4 +19,6 @@ export default () => ({
     DB_USERNAME: process.env.POSTGRES_USER,
     DB_PASSWORD: process.env.POSTGRES_PASSWORD,
     DB_DATABASE: process.env.POSTGRES_DB,
+
+    TELEGRAM_BOT_USERNAME: process.env.TELEGRAM_BOT_USERNAME || 'aposentus_bot',
 });
