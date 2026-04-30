@@ -139,7 +139,6 @@ export class IntegracoesTelegramService {
             throw new NotFoundException('Conta Telegram não vinculada a nenhum usuário.');
         }
 
-        const hoje = new Date();
         const frequencia = dto.frequencia ?? OracaoFrequencia.DIARIA;
 
         const novaOracao = this.oracaoRepository.create({
@@ -147,8 +146,8 @@ export class IntegracoesTelegramService {
             conteudo: dto.conteudo,
             tema: dto.tema ?? TEMA_PADRAO_TELEGRAM,
             tipo: dto.tipo ?? OracaoTipo.PEDIDO,
-            diaSemana: dto.dia_semana ?? (frequencia === OracaoFrequencia.SEMANAL ? hoje.getDay() : DIA_SEMANA_PADRAO),
-            diaMes: dto.dia_mes ?? (frequencia === OracaoFrequencia.MENSAL ? hoje.getDate() : DIA_MES_PADRAO),
+            diaSemana: this.resolverDiaSemanaParao(frequencia, dto.dia_semana),
+            diaMes: this.resolverDiaMesParao(frequencia, dto.dia_mes),
             frequencia,
             quantidadeMaxima: dto.quantidade_maxima ?? QUANTIDADE_MAXIMA_SEM_LIMITE,
             totalOracoes: 0,
@@ -261,5 +260,18 @@ export class IntegracoesTelegramService {
 
         return await this.sessoesService.marcarOracaoFeitaNaSessao(sessaoId, oracaoId, integracao.userId);
     }
-}
 
+    private resolverDiaSemanaParao(frequencia: OracaoFrequencia, diaInformado?: number): number {
+        if (diaInformado !== undefined) {
+            return diaInformado;
+        }
+        return frequencia === OracaoFrequencia.SEMANAL ? new Date().getDay() : DIA_SEMANA_PADRAO;
+    }
+
+    private resolverDiaMesParao(frequencia: OracaoFrequencia, diaInformado?: number): number {
+        if (diaInformado !== undefined) {
+            return diaInformado;
+        }
+        return frequencia === OracaoFrequencia.MENSAL ? new Date().getDate() : DIA_MES_PADRAO;
+    }
+}

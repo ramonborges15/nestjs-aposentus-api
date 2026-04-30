@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { ArrayMinSize, IsArray, IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class TelegramIniciarSessaoRequestDto {
 
@@ -15,7 +15,6 @@ export class TelegramIniciarSessaoRequestDto {
     })
     @IsOptional()
     @IsArray()
-    @ArrayMinSize(1)
     @IsInt({ each: true })
     @Type(() => Number)
     oracao_ids?: number[];
