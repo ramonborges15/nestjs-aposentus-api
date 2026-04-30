@@ -51,4 +51,17 @@ export class SessoesController {
         // query.evento é validado pelo FinalizarSessaoQueryDto via class-validator (@IsEnum)
         return await this.sessoesService.finalizarSessao(id, req.user.sub, query.evento);
     }
+
+    @Put(':sessaoId/oracoes/:oracaoId/feita')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Marcar uma oração como feita na sessão' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Oração marcada como feita com sucesso' })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Sessão ou oração não encontrada' })
+    async marcarOracaoFeita(
+        @Param('sessaoId', ParseIntPipe) sessaoId: number,
+        @Param('oracaoId', ParseIntPipe) oracaoId: number,
+        @Req() req: RequisicaoAutenticada,
+    ) {
+        return await this.sessoesService.marcarOracaoFeitaNaSessao(sessaoId, oracaoId, req.user.sub);
+    }
 }

@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity('sessao_oracoes')
 export class SessaoOracao {
@@ -8,4 +8,7 @@ export class SessaoOracao {
 
     @PrimaryColumn({ name: 'oracao_id' })
     public oracaoId: number;
+
+    @Column({ name: 'feito_em', type: 'timestamptz', nullable: true })
+    public feitoEm: Date | null;
 }

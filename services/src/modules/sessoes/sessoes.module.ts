@@ -14,5 +14,6 @@ import { SessoesService } from './services/sessoes.service';
     ],
     controllers: [SessoesController],
     providers: [SessoesService],
+    exports: [SessoesService],
 })
 export class SessoesModule { }

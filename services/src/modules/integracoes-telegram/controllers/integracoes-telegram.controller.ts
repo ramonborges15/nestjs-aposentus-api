@@ -5,13 +5,17 @@ import {
     Get,
     HttpCode,
     HttpStatus,
+    Param,
+    ParseIntPipe,
     Post,
+    Put,
     Query,
     Req,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { SkipAuth } from 'shared/decorators/routes.decorator';
+import { TelegramIniciarSessaoRequestDto } from '../dtos/telegram-iniciar-sessao-request.dto';
 import { TelegramLinkRequestDto } from '../dtos/telegram-link-request.dto';
 import { TelegramOracaoRequestDto } from '../dtos/telegram-oracao-request.dto';
 import { IntegracoesTelegramService } from '../services/integracoes-telegram.service';
@@ -89,4 +93,35 @@ export class IntegracoesTelegramPublicoController {
     async listarOracoesHojeViaTelegram(@Query('telegramUserId') telegramUserId: string) {
         return await this.integracoesTelegramService.listarOracoesHojeViaTelegram(telegramUserId);
     }
+
+    @SkipAuth()
+    @Post('bot/sessoes')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Iniciar sessão de oração via bot do Telegram (chamado pelo bot, sem autenticação JWT)' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Sessão iniciada com sucesso' })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Conta Telegram não vinculada' })
+    @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Nenhuma oração disponível para hoje' })
+    async iniciarSessaoViaTelegram(@Body() dto: TelegramIniciarSessaoRequestDto) {
+        return await this.integracoesTelegramService.iniciarSessaoViaTelegram(dto);
+    }
+
+    @SkipAuth()
+    @Put('bot/sessoes/:sessaoId/oracoes/:oracaoId/feita')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Marcar oração como feita na sessão via bot do Telegram (chamado pelo bot, sem autenticação JWT)' })
+    @ApiQuery({ name: 'telegramUserId', description: 'ID do usuário no Telegram', required: true })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Oração marcada como feita com sucesso' })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Conta Telegram não vinculada, sessão ou oração não encontrada' })
+    async marcarOracaoFeitaNaSessaoViaTelegram(
+        @Param('sessaoId', ParseIntPipe) sessaoId: number,
+        @Param('oracaoId', ParseIntPipe) oracaoId: number,
+        @Query('telegramUserId') telegramUserId: string,
+    ) {
+        return await this.integracoesTelegramService.marcarOracaoFeitaNaSessaoViaTelegram(
+            telegramUserId,
+            sessaoId,
+            oracaoId,
+        );
+    }
 }
+
