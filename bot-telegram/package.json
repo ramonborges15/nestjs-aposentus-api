@@ -1,0 +1,18 @@
+{
+    "name": "bot-telegram-aposentus",
+    "version": "1.0.0",
+    "description": "Bot Telegram para integração com a API Aposentus",
+    "main": "src/index.js",
+    "engines": {
+        "node": ">=20"
+    },
+    "scripts": {
+        "start": "node src/index.js",
+        "dev": "node --watch src/index.js"
+    },
+    "dependencies": {
+        "axios": "^1.7.2",
+        "node-telegram-bot-api": "^0.66.0",
+        "dotenv": "^16.4.5"
+    }
+}

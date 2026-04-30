@@ -1,7 +1,6 @@
 import {
     Column,
     CreateDateColumn,
-    DeleteDateColumn,
     Entity,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
@@ -31,9 +30,6 @@ export class Oracao {
 
     @UpdateDateColumn({ name: 'atualizado_em', type: 'timestamptz' })
     public atualizadoEm: Date;
-
-    @DeleteDateColumn({ name: 'excluido_em', type: 'timestamptz', nullable: true })
-    public excluidoEm: Date;
 
     @Column({ type: 'varchar' })
     public titulo: string;
