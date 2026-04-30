@@ -96,7 +96,7 @@ export class OracoesService {
                     WHERE so.oracao_id = oracao.id
                     AND s.user_id = :usuarioId
                     AND s.data_dia = :dataAtual
-                    AND s.finalizado = true
+                    AND (s.finalizado = true OR so.feito_em IS NOT NULL)
                 )`,
                 { dataAtual },
             )

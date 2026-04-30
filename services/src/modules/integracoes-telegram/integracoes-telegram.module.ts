@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { LoggerModule } from '../logger/logger.module';
 import { Oracao } from '../oracoes/entities/oracao.entity';
+import { SessoesModule } from '../sessoes/sessoes.module';
 import {
     IntegracoesTelegramPublicoController,
     MeIntegracoesTelegramController,
@@ -14,6 +15,7 @@ import { IntegracoesTelegramService } from './services/integracoes-telegram.serv
     imports: [
         TypeOrmModule.forFeature([TelegramIntegracao, TelegramCodigoLink, Oracao]),
         LoggerModule.register('IntegracoesTelegram'),
+        SessoesModule,
     ],
     controllers: [MeIntegracoesTelegramController, IntegracoesTelegramPublicoController],
     providers: [IntegracoesTelegramService],
